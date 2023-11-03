@@ -41,7 +41,7 @@ kubectl apply -f k8/rabbitmq-setup.yaml -n rabbitmq-ns
 
 ### 3. Build Docker Images:
 
-### Producer Image Build
+#### Producer Image Build
 ```bash
 pushd src/producer
 docker build -t <your-registry-path>/rabbitmq-producer:latest .
@@ -49,7 +49,7 @@ docker push <your-registry-path>/rabbitmq-producer:latest
 popd
 ```
 
-### Consumer Image Build
+#### Consumer Image Build
 ```bash
 pushd src/consumer
 docker build -t <your-registry-path>/rabbitmq-consumer:latest .
@@ -70,14 +70,20 @@ kubectl apply -f k8/rabbitmq-producer.yaml -n rabbitmq-ns
 
 #### Deploy the consumer:
 
-Search/replace <your-registry-path> with your registry name in k8/rabbitmq-consumer.yaml then run
-
 ```bash
 kubectl apply -f k8/rabbitmq-consumer.yaml -n rabbitmq-ns
 # kubectl delete -f k8/rabbitmq-consumer.yaml -n rabbitmq-ns
 ```
 
-### 5. Add Lumigo token secret
+### 6. Install the Lumigo Kubernetes operator on your cluster via Helm if not already done so.  
+
+```bash
+helm repo add lumigo https://lumigo-io.github.io/lumigo-kubernetes-operator
+helm install lumigo lumigo/lumigo-operator --namespace lumigo-system --create-namespace
+```
+#### See https://docs.lumigo.io/docs/lumigo-kubernetes-operator for more information
+
+### 7. Add Lumigo token secret:
 
 ```bash
 kubectl create secret generic --namespace rabbitmq-ns lumigo-credentials --from-literal token=<your-lumigo-token>
@@ -90,7 +96,7 @@ You can view the token to validate by running the following:
 kubectl get secret lumigo-credentials -n rabbitmq-ns -o json  | jq -r '.data.token' | base64 -d
 ```
 
-### 6. Add Lumigo operator to target namespace
+### 8. Add Lumigo operator to target namespace
 
 ```bash
 echo '{
