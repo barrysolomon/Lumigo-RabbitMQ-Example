@@ -1,41 +1,45 @@
-import time
 import pika
 import logging
+import time
+import random
 
-# Setting up logging
-logging.basicConfig(level=logging.INFO, format='[%(asctime)s] [%(levelname)s] %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def establish_connection():
-    logger.info("Establishing connection to RabbitMQ...")
-    return pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq-service'))
+class RabbitMQProducer:
 
-def initialize_channel(connection):
-    channel = connection.channel()
-    channel.queue_declare(queue='hello')
-    return channel
+    def __init__(self, host):
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+        self.channel = self.connection.channel()
+        self.channel.queue_declare(queue='hello')
+        self.targeted_messages = [
+            "TARGET: Critical system alert!",
+            "TARGET: New VIP user signup!",
+            "TARGET: Large transaction detected!",
+            "TARGET: Application error rate spiked!"
+        ]
 
-def send_message(channel):
-    while True:
-        message_content = time.time()
-        message = f"Hello RabbitMQ - {message_content}"
-        channel.basic_publish(exchange='', routing_key='hello', body=message)
-        logger.info(f" [x] Sent '{message}'")
-        time.sleep(5)
+    def publish_message(self):
+        while True:
+            if random.randint(1, 10) == 1:  # 10% chance to send targeted message
+                message = random.choice(self.targeted_messages) + f" Timestamp: {time.time()}"
+            else:
+                message = f"Hello RabbitMQ - {time.time()}"
+            
+            self.channel.basic_publish(exchange='', routing_key='hello', body=message)
+            logger.info(f" [x] Sent '{message}'")
+            time.sleep(5)
 
-def main():
-    logger.info("Producer started")
-    
-    connection = establish_connection()
-    channel = initialize_channel(connection)
-
-    try:
-        send_message(channel)
-    except Exception as e:
-        logger.error(f"Error occurred: {e}")
-    finally:
-        connection.close()
-        logger.info("Producer exited")
+    def close(self):
+        self.connection.close()
 
 if __name__ == "__main__":
-    main()
+    logger.info("Producer started")
+    producer = RabbitMQProducer(host='rabbitmq-service')
+    try:
+        producer.publish_message()
+    except KeyboardInterrupt:
+        logger.info("Producer interrupted by user. Exiting...")
+    finally:
+        producer.close()
+        logger.info("Producer exited")

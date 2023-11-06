@@ -13,6 +13,10 @@ spec:
       labels:
         app: rabbitmq-consumer
     spec:
+      initContainers:
+      - name: wait-for-rabbitmq
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup rabbitmq-service; do echo waiting for rabbitmq; sleep 2; done;']
       containers:
       - name: consumer
         image: <your-registry-path>/rabbitmq-consumer
