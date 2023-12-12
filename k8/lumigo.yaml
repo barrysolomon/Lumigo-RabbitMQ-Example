@@ -1,0 +1,10 @@
+"apiVersion": "operator.lumigo.io/v1alpha1"
+"kind": "Lumigo"
+"metadata":
+  "name": "lumigo"
+"spec":
+  "lumigoToken":
+    "secretRef":
+      "name": "lumigo-credentials"
+      "key": "token"
+

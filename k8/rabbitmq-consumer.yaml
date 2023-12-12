@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rabbitmq-consumer-deployment
-  namespace: rabbitmq-ns
+  namespace: rabbitmq
 spec:
-  replicas: 2  # Assuming you want 2 replicas for the consumer
+  replicas: 2 # Assuming you want 2 replicas for the consumer
   selector:
     matchLabels:
       app: rabbitmq-consumer

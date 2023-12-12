@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rabbitmq-producer-deployment
-  namespace: rabbitmq-ns
+  namespace: rabbitmq
 spec:
-  replicas: 1  # Only 1 replica for the producer
+  replicas: 1 # Only 1 replica for the producer
   selector:
     matchLabels:
       app: rabbitmq-producer
